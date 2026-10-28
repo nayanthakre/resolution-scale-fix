@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "scale-fix": {
+      "projectType": "library",
+      "root": "projects/scale-fix",
+      "sourceRoot": "projects/scale-fix/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/scale-fix/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/scale-fix/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/scale-fix/tsconfig.spec.json"
+          }
+        }
+      }
+    }
+  }
+}
