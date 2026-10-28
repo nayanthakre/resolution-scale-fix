@@ -1,59 +1,87 @@
-# ResolutionLibrary
+# scale-fix
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.4.
+Angular library that corrects Windows display scaling so an application keeps its 100% layout.
 
-## Development server
+Windows display scaling between **110%** and **175%** raises `devicePixelRatio` above `1`. Text, layout, and charts then render larger than designed. `ScaleFixService` applies the inverse CSS `zoom` on the document element and dispatches a `resize` event so chart libraries redraw at the corrected size.
 
-To start a local development server, run:
+Scaling at **100%**, and scaling outside the configured range (for example **200%**), is left unchanged.
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Installation
 
 ```bash
-ng generate component component-name
+npm install scale-fix
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Peer dependencies:
+
+| Package | Version |
+| --- | --- |
+| `@angular/core` | `^18.2.0` |
+| `@angular/common` | `^18.2.0` |
+
+## Usage
+
+`ScaleFixService` is provided in the root injector. Call `init()` once when the application starts.
+
+```typescript
+import { Component, inject } from '@angular/core';
+import { ScaleFixService } from 'scale-fix';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+})
+export class AppComponent {
+  private readonly scaleFix = inject(ScaleFixService);
+
+  constructor() {
+    this.scaleFix.init();
+  }
+}
+```
+
+Pass a custom inclusive range when the defaults are not the ones you want. Values are `devicePixelRatio` units (`1.25` is 125% scaling).
+
+```typescript
+this.scaleFix.init(1.25, 1.5);
+```
+
+## API
+
+### `init(min = 1.1, max = 1.75): void`
+
+Reads `window.devicePixelRatio`, sets `zoom` on `<html>`, and listens for `resize` so the correction follows display-scale changes.
+
+| `devicePixelRatio` | Display scaling | Result |
+| --- | --- | --- |
+| Below `min` or above `max` | for example 100% or 200% | No correction (`zoom` stays `1`) |
+| From `min` through `max` | 110%–175% by default | `zoom` is set to `1 / devicePixelRatio` |
+
+`init()` is safe to call more than once. The resize listener is registered only on the first call.
+
+On the server, `init()` does nothing.
+
+## How it works
+
+1. Read `window.devicePixelRatio` (default `1`).
+2. If the ratio is inside `[min, max]`, set `document.documentElement` `zoom` to `1 / devicePixelRatio`.
+3. Skip the update when the factor has not changed.
+4. Dispatch a `resize` event on the next turn so charts and other resize-aware widgets redraw.
+
+## Build
+
+From this repository:
 
 ```bash
-ng generate --help
+npm install
+npx ng build scale-fix
 ```
 
-## Building
+Build output is written to `dist/scale-fix`.
 
-To build the project run:
+## Publishing
 
 ```bash
-ng build
+cd dist/scale-fix
+npm publish
 ```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
