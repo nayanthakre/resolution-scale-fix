@@ -16,8 +16,8 @@ Peer dependencies:
 
 | Package | Version |
 | --- | --- |
-| `@angular/core` | `^18.2.0` |
-| `@angular/common` | `^18.2.0` |
+| `@angular/core` | `^21.2.0` |
+| `@angular/common` | `^21.2.0` |
 
 ## Usage
 
@@ -83,5 +83,11 @@ Build output is written to `dist/scale-fix`.
 
 ```bash
 cd dist/scale-fix
-npm publish
+npm publish --access public
 ```
+
+## License
+
+[MIT](LICENSE) © 2026 Om Dixit
+
+Anyone may use, copy, modify, publish, distribute, sublicense, and sell this library, including in commercial applications. Copies must keep the copyright notice and the permission notice.
