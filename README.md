@@ -4,7 +4,7 @@ Angular library that corrects Windows display scaling so an application keeps it
 
 Windows display scaling between **110%** and **175%** raises `devicePixelRatio` above `1`. Text, layout, and charts then render larger than designed. `ScaleFixService` applies the inverse CSS `zoom` on the document element and dispatches a `resize` event so chart libraries redraw at the corrected size.
 
-Scaling at **100%**, and scaling outside the configured range (for example **200%**), is left unchanged.
+Scaling at **100%**, and scaling outside the configured range (for example **200%**), is left unchanged. Manual browser zoom (`Ctrl`/`Cmd` `+` `-`, pinch) stays fully functional: the OS compensation is held steady while page zoom changes `devicePixelRatio`.
 
 ## Installation
 
@@ -67,8 +67,10 @@ On the server, `init()` does nothing.
 
 1. Read `window.devicePixelRatio` (default `1`).
 2. If the ratio is inside `[min, max]`, set `document.documentElement` `zoom` to `1 / devicePixelRatio`.
-3. Skip the update when the factor has not changed.
-4. Dispatch a `resize` event on the next turn so charts and other resize-aware widgets redraw.
+3. On `resize`, detect Ctrl+/- page zoom (DPR and CSS viewport width move in inverse proportion). In that case keep the existing `zoom` so user zoom is not cancelled.
+4. Otherwise treat the change as a display-scale change and recompute the correction.
+5. Skip the update when the factor has not changed.
+6. Dispatch a `resize` event on the next turn so charts and other resize-aware widgets redraw.
 
 ## Build
 

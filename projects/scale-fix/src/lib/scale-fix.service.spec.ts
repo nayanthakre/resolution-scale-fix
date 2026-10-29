@@ -13,6 +13,13 @@ describe('ScaleFixService', () => {
     });
   }
 
+  function setInnerWidth(value: number) {
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value,
+    });
+  }
+
   beforeEach(() => {
     vi.spyOn(window, 'addEventListener').mockImplementation((type, listener) => {
       if (type === 'resize' && typeof listener === 'function') {
@@ -22,6 +29,7 @@ describe('ScaleFixService', () => {
 
     document.documentElement.style.removeProperty('zoom');
     setDevicePixelRatio(1);
+    setInnerWidth(1000);
 
     TestBed.configureTestingModule({});
   });
@@ -40,6 +48,7 @@ describe('ScaleFixService', () => {
     expect(document.documentElement.style.getPropertyValue('zoom')).toBe('0.8');
 
     setDevicePixelRatio(1.5);
+    setInnerWidth(1000);
     resizeListeners.forEach((listener) => listener(new Event('resize')));
     expect(document.documentElement.style.getPropertyValue('zoom')).toBe(String(1 / 1.5));
   });
@@ -52,8 +61,25 @@ describe('ScaleFixService', () => {
     expect(document.documentElement.style.getPropertyValue('zoom')).toBe('');
 
     setDevicePixelRatio(2);
+    setInnerWidth(1000);
     resizeListeners.forEach((listener) => listener(new Event('resize')));
     expect(document.documentElement.style.getPropertyValue('zoom')).toBe('');
+  });
+
+  it('keeps OS compensation when the user page-zooms with Ctrl+/-', () => {
+    const service = TestBed.inject(ScaleFixService);
+
+    setDevicePixelRatio(1.25);
+    setInnerWidth(1000);
+    service.init();
+    expect(document.documentElement.style.getPropertyValue('zoom')).toBe('0.8');
+
+    // Browser zoom 125% → 150%: DPR rises and CSS viewport shrinks in proportion.
+    setDevicePixelRatio(1.25 * 1.2);
+    setInnerWidth(1000 / 1.2);
+    resizeListeners.forEach((listener) => listener(new Event('resize')));
+
+    expect(document.documentElement.style.getPropertyValue('zoom')).toBe('0.8');
   });
 
   it('registers the resize listener only once', () => {
