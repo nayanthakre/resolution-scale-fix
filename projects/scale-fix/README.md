@@ -16,15 +16,17 @@ Peer dependencies:
 
 | Package | Version |
 | --- | --- |
-| `@angular/core` | `^21.2.0` |
-| `@angular/common` | `^21.2.0` |
+| `@angular/core` | `>=12.0.0` |
+| `@angular/common` | `>=12.0.0` |
+
+The same package works in an Angular 12 project and in later majors, including future ones. It is published as partial Ivy, and the application links it with its own Angular compiler. Angular versions older than 12 cannot consume that format.
 
 ## Usage
 
 `ScaleFixService` is provided in the root injector. Call `init()` once when the application starts.
 
 ```typescript
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { ScaleFixService } from 'scale-fix';
 
 @Component({
@@ -32,13 +34,13 @@ import { ScaleFixService } from 'scale-fix';
   templateUrl: './app.component.html',
 })
 export class AppComponent {
-  private readonly scaleFix = inject(ScaleFixService);
-
-  constructor() {
+  constructor(private readonly scaleFix: ScaleFixService) {
     this.scaleFix.init();
   }
 }
 ```
+
+On Angular 14 or later, `inject(ScaleFixService)` works the same way.
 
 Pass a custom inclusive range when the defaults are not the ones you want. Values are `devicePixelRatio` units (`1.25` is 125% scaling).
 

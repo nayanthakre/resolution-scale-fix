@@ -1,11 +1,15 @@
 import { isPlatformBrowser } from '@angular/common';
-import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class ScaleFixService {
-  private readonly platformId = inject(PLATFORM_ID);
-  private lastFactor = 1;
-  private started = false;
+  private lastFactor: number;
+  private started: boolean;
+
+  constructor(@Inject(PLATFORM_ID) private readonly platformId: Object) {
+    this.lastFactor = 1;
+    this.started = false;
+  }
 
   init(min = 1.1, max = 1.75) {
     if (this.started || !isPlatformBrowser(this.platformId)) return;
